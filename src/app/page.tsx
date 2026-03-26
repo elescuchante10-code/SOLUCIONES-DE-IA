@@ -171,14 +171,17 @@ function Screen1({ onEnter, isTransitioning }: {
   }, [isComplete, onEnter, isTransitioning])
   
   return (
-    <div className="fixed inset-0 flex flex-col justify-center items-center text-center px-4 z-20">
-      <div className="text-xl sm:text-2xl whitespace-pre-wrap text-left max-w-[700px] font-bold mb-10">
+    <div 
+      className="fixed inset-0 flex flex-col justify-center items-center text-center px-4 z-20 cursor-pointer"
+      onClick={() => { if (isComplete && !isTransitioning) onEnter() }}
+    >
+      <div className="text-xl sm:text-2xl whitespace-pre-wrap text-left max-w-[700px] font-bold mb-10 pointer-events-none">
         {displayText}
         {!isComplete && <span className="cursor-blink ml-1"></span>}
       </div>
       {isComplete && (
-        <div className="text-[var(--phosphor-dim)] text-sm animate-pulse">
-          [ OPRIME ENTER PARA EMPEZAR TU EXPERIENCIA ]
+        <div className="text-[var(--phosphor-dim)] text-sm animate-pulse pointer-events-none">
+          [ OPRIME ENTER O TOCA LA PANTALLA PARA EMPEZAR ]
         </div>
       )}
     </div>
@@ -321,8 +324,11 @@ Tu empresa necesita Branding de Algoritmos.
         )}
         
         {showInstruction && (
-          <div className="text-[var(--phosphor)] text-sm animate-pulse">
-            [ SELECCIONA TU SERVICIO O PRESIONA 'ESC' SI NECESITAS AYUDA ]
+          <div 
+            className="text-[var(--phosphor)] text-sm animate-pulse mt-8 cursor-pointer inline-block"
+            onClick={() => { if (!isTransitioning) onEscape() }}
+          >
+            [ SELECCIONA TU SERVICIO O TOCA AQUÍ / PRESIONA 'ESC' PARA OMITIR ]
           </div>
         )}
       </div>
@@ -396,7 +402,7 @@ function Screen3({ preselectedService }: { preselectedService: Service | null })
   return (
     <div className="min-h-screen relative z-10 py-6 px-4 md:px-8">
       <div className="max-w-5xl mx-auto">
-        <div className="border-b border-dashed border-[var(--phosphor-dim)] pb-4 mb-8 flex flex-col sm:flex-row justify-between text-xs gap-4">
+        <div className="border-b border-dashed border-[var(--phosphor-dim)] pb-4 mb-8 flex flex-col sm:flex-row justify-between text-[11px] sm:text-xs gap-4">
           <div>
             <span className="text-[var(--phosphor-dim)]">SYS_ADMIN: </span>
             <span>SOLUCIONES DE IA</span>
@@ -406,14 +412,28 @@ function Screen3({ preselectedService }: { preselectedService: Service | null })
           </div>
           <div className="text-left sm:text-right">
             <span className="text-[var(--phosphor-dim)]">TCP/IP SECURE COMM:</span>
-            <br />
+            <br className="hidden sm:block" />
             <span className="text-[var(--phosphor-dim)]">MAIL: </span>
             <a href="mailto:ssolucionesdeia@gmail.com" className="terminal-link">
               ssolucionesdeia@gmail.com
             </a>
-            <span className="text-[var(--phosphor-dim)]"> | TEL: </span>
+            <span className="text-[var(--phosphor-dim)] mx-1">|</span>
+            <span className="text-[var(--phosphor-dim)]">TEL: </span>
             <a href="tel:3108688648" className="terminal-link">
               310-8688648
+            </a>
+            <br />
+            <span className="text-[var(--phosphor-dim)]">REDES: </span>
+            <a href="https://www.tiktok.com/@soluciones.de.ia" target="_blank" rel="noopener noreferrer" className="terminal-link">
+              TIKTOK
+            </a>
+            <span className="text-[var(--phosphor-dim)] mx-1">|</span>
+            <a href="https://instagram.com/SOLUCIONES_DEIA" target="_blank" rel="noopener noreferrer" className="terminal-link">
+              INSTAGRAM
+            </a>
+            <span className="text-[var(--phosphor-dim)] mx-1">|</span>
+            <a href="https://www.linkedin.com/in/corvattaconsultor?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener noreferrer" className="terminal-link">
+              LINKEDIN
             </a>
           </div>
         </div>
@@ -487,6 +507,8 @@ function Screen3({ preselectedService }: { preselectedService: Service | null })
 
 function ArcadeGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [isGameOver, setIsGameOver] = useState(false)
+  
   const gameRef = useRef<{
     player: { x: number; y: number; w: number; h: number; speed: number; dx: number }
     bullets: Array<{ x: number; y: number; w: number; h: number; speed: number }>
@@ -499,6 +521,8 @@ function ArcadeGame() {
   const animationFrameId = useRef<number | null>(null)
   
   useEffect(() => {
+    if (isGameOver) return // Stop game loop logic entirely if game is over
+
     const canvas = canvasRef.current
     if (!canvas) return
     
@@ -591,6 +615,7 @@ function ArcadeGame() {
           e.y += 10
           if (e.y + e.h >= game.player.y) {
             game.gameActive = false
+            setIsGameOver(true)
           }
         })
       }
@@ -622,19 +647,6 @@ function ArcadeGame() {
       ctx.fillRect(0, 0, canvas.width, canvas.height)
       
       if (!game.gameActive) {
-        ctx.fillStyle = '#ff003c'
-        ctx.font = 'bold 16px Courier New'
-        ctx.textAlign = 'center'
-        ctx.fillText('FATAL ERROR: IA GENÉRICA DETECTADA', canvas.width / 2, 90)
-        
-        ctx.fillStyle = '#00ff41'
-        ctx.font = '14px Courier New'
-        ctx.fillText('"SOLUCIONES DE IA" EVITARÁ', canvas.width / 2, 130)
-        ctx.fillText('QUE ESTÉS EN GAME OVER.', canvas.width / 2, 155)
-        
-        ctx.fillStyle = '#00C832'
-        ctx.font = '12px Courier New'
-        ctx.fillText('IDENTIDAD PROTEGIDA: ' + game.score, canvas.width / 2, 200)
         return
       }
       
@@ -664,7 +676,9 @@ function ArcadeGame() {
     const gameLoop = () => {
       update()
       draw()
-      animationFrameId.current = requestAnimationFrame(gameLoop)
+      if (game.gameActive) {
+        animationFrameId.current = requestAnimationFrame(gameLoop)
+      }
     }
     
     gameLoop()
@@ -677,21 +691,93 @@ function ArcadeGame() {
       document.removeEventListener('keyup', handleKeyUp)
       window.removeEventListener('keydown', preventScroll)
     }
-  }, [])
+  }, [isGameOver])
+
+  const handlePointerDownLeft = () => { if (gameRef.current) gameRef.current.player.dx = -gameRef.current.player.speed }
+  const handlePointerDownRight = () => { if (gameRef.current) gameRef.current.player.dx = gameRef.current.player.speed }
+  const handlePointerUp = () => { if (gameRef.current) gameRef.current.player.dx = 0 }
+  const handlePointerShoot = () => {
+    if (gameRef.current && gameRef.current.gameActive) {
+      gameRef.current.bullets.push({
+        x: gameRef.current.player.x + gameRef.current.player.w / 2 - 2,
+        y: gameRef.current.player.y,
+        w: 4, h: 10, speed: 7
+      })
+    }
+  }
   
   return (
-    <div className="terminal-box text-center mt-12 overflow-hidden">
-      <div className="box-title">/GAMES/DEFENDER_DATOS.EXE</div>
-      <canvas 
-        ref={canvasRef} 
-        width={600} 
-        height={250}
-        className="border-2 border-[var(--phosphor-dim)] bg-black mx-auto mt-4 max-w-full touch-none"
-        style={{ boxShadow: '0 0 15px rgba(0,255,65,0.15)' }}
-      />
-      <p className="text-xs text-[var(--phosphor-dim)] mt-4 px-2">
-        [FLECHAS] MOVER NAVE | [ESPACIO] DISPARAR LÁSER | DEFIENDA SU IDENTIDAD DE LA IA GENÉRICA
-      </p>
+    <div className="terminal-box text-center mt-12 overflow-hidden flex flex-col items-center">
+      <div className="box-title w-full text-left">/GAMES/DEFENDER_DATOS.EXE</div>
+      
+      {!isGameOver ? (
+        <>
+          <canvas 
+            ref={canvasRef} 
+            width={600} 
+            height={250}
+            className="border-2 border-[var(--phosphor-dim)] bg-black mx-auto mt-4 max-w-full touch-none"
+            style={{ boxShadow: '0 0 15px rgba(0,255,65,0.15)' }}
+          />
+          <p className="text-xs text-[var(--phosphor-dim)] mt-4 px-2 hidden md:block">
+            [FLECHAS] MOVER NAVE | [ESPACIO] DISPARAR LÁSER
+          </p>
+
+          {/* FRONT-END CONTROLES DE MÓVIL */}
+          <div className="flex justify-between w-full max-w-[600px] mt-4 md:hidden gap-2">
+            <button 
+              className="flex-1 bg-[rgba(0,255,65,0.1)] border border-[var(--phosphor-dim)] text-[var(--phosphor)] py-3 active:bg-[var(--phosphor)] active:text-black font-bold transition-colors select-none"
+              onPointerDown={handlePointerDownLeft}
+              onPointerUp={handlePointerUp}
+              onPointerLeave={handlePointerUp}
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              ◄ IZQ
+            </button>
+            <button 
+              className="flex-1 bg-[rgba(0,255,65,0.1)] border border-[var(--phosphor-dim)] text-[var(--phosphor)] py-3 active:bg-[var(--phosphor)] active:text-black font-bold transition-colors select-none"
+              onPointerDown={handlePointerShoot}
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              ██ DISPARAR
+            </button>
+            <button 
+              className="flex-1 bg-[rgba(0,255,65,0.1)] border border-[var(--phosphor-dim)] text-[var(--phosphor)] py-3 active:bg-[var(--phosphor)] active:text-black font-bold transition-colors select-none"
+              onPointerDown={handlePointerDownRight}
+              onPointerUp={handlePointerUp}
+              onPointerLeave={handlePointerUp}
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              DER ►
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className="mt-6 p-6 border border-[var(--alert)] bg-[rgba(255,0,60,0.05)] text-left w-full max-w-[600px] shadow-[0_0_15px_rgba(255,0,60,0.2)]">
+          <h3 className="text-[var(--alert)] font-bold mb-4 text-center sm:text-left text-lg">
+            &gt; SISTEMA BLOQUEADO // MÁXIMO DE INTENTOS ALCANZADO
+          </h3>
+          <p className="text-sm mb-6 text-center sm:text-left text-[var(--phosphor)]">
+            Ha intentado defender sus datos corporativos manualmente sin IA especializada. GAME OVER.
+            <br /><br />
+            ¿Desea desbloquear un nuevo crédito o construir la personalidad nativa de su IA interactiva? Contacte a nuestros ingenieros para recuperar el sistema.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <a 
+              href="mailto:ssolucionesdeia@gmail.com" 
+              className="terminal-link border border-[var(--phosphor)] px-4 py-3 flex-1 text-center hover:bg-[var(--phosphor)] hover:text-black no-underline transition-colors block"
+            >
+              {`> INICIAR_CONSULTA.sh`}
+            </a>
+            <a 
+              href="tel:3108688648" 
+              className="terminal-link border border-[var(--phosphor)] px-4 py-3 flex-1 text-center hover:bg-[var(--phosphor)] hover:text-black no-underline transition-colors block"
+            >
+              {`> ENLACE_VOZ.exe`}
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
