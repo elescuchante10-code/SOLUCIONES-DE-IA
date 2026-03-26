@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+:root {
+  --phosphor: rgba(0, 255, 65, 1);
+  --phosphor-dim: rgba(0, 255, 65, 0.5);
+  --alert: rgba(255, 0, 60, 1);
+}
+
+body {
+  background-color: #000;
+  color: var(--phosphor);
+  font-family: inherit;
+}
+
+.terminal-link {
+  color: var(--phosphor);
+  text-decoration: underline;
+}
+
+.terminal-link:hover {
+  color: #fff;
+}
+
+.box-title {
+  background-color: rgba(0,255,65,0.1);
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid var(--phosphor-dim);
+  font-weight: bold;
+}
+
+.terminal-box {
+  border: 1px solid var(--phosphor-dim);
+  padding: 1rem;
+}
+
+.service-btn {
+  color: var(--phosphor-dim);
+  text-align: left;
+  border-left: 2px solid transparent;
+  padding-left: 0.5rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  background: transparent;
+  width: 100%;
+}
+
+.service-btn:hover, .service-btn.active {
+  color: var(--phosphor);
+  border-left-color: var(--phosphor);
+  text-shadow: 0 0 5px rgba(0,255,65,0.5);
+}
+
+.cursor-blink {
+  display: inline-block;
+  width: 8px;
+  height: 15px;
+  background-color: var(--phosphor);
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.text-glow {
+  text-shadow: 0 0 10px rgba(0,255,65,0.5);
+}
+
+.ascii-art {
+  color: var(--phosphor);
+}

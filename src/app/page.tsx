@@ -1,0 +1,768 @@
+'use client'
+
+import { useState, useEffect, useRef, useCallback } from 'react'
+
+// ============================================
+// TIPOS Y DATOS (MULTISECTORIAL)
+// ============================================
+
+interface Service {
+  id: string
+  name: string
+  tags: string
+  desc: string
+}
+
+const servicesData: Service[] = [
+  {
+    id: "cmd_arqueologia",
+    name: "arqueologia_corporativa.exe",
+    tags: "[BRANDING ALGORÍTMICO] [IDENTIDAD]",
+    desc: `> INICIANDO ARQUEOLOGÍA CORPORATIVA...
+
+Extraemos los valores no negociables y la cultura profunda de su empresa.
+
+Convertimos su identidad institucional en parámetros algorítmicos. Su agente IA no solo dará respuestas correctas, pensará como los líderes de su organización, sin importar su industria.`
+  },
+  {
+    id: "cmd_personalidad",
+    name: "entrenamiento_personalidad.sh",
+    tags: "[FINE-TUNING] [GUARDRAILS ÉTICOS]",
+    desc: `> COMPILANDO PERSONALIDAD COMPUTACIONAL...
+
+Configuramos cómo su IA modula el lenguaje según el interlocutor (Cliente B2B, Proveedor, Usuario final).
+
+Establecemos guardrails éticos precisos y adaptamos el modelo a la 'aversión al riesgo' exacta de su negocio.`
+  },
+  {
+    id: "cmd_memoria",
+    name: "arquitectura_de_memoria.db",
+    tags: "[MILVUS] [RAG AVANZADO]",
+    desc: `> CONECTANDO BASE DE CONOCIMIENTO VECTORIAL...
+
+Construimos un sistema que indexa todos sus manuales, procesos, historiales y políticas empresariales.
+
+El algoritmo obtiene un contexto profundo sobre cómo opera su empresa, respondiendo en milisegundos con datos 100% propios.`
+  },
+  {
+    id: "cmd_integracion",
+    name: "integracion_segura_multisector.sys",
+    tags: "[AIR-GAPPED] [COMPLIANCE]",
+    desc: `> ESTABLECIENDO CONEXIONES NATIVAS...
+
+Despliegue local y seguro. Conectamos la IA a sus ERPs y CRMs sin modificar su infraestructura legacy.
+
+Cumplimiento por diseño (GDPR, SOC 2, HIPAA, MiFID II). Sus datos corporativos NUNCA viajan a la nube pública para entrenar modelos de terceros.`
+  },
+  {
+    id: "cmd_dashboard",
+    name: "dashboard_coherencia.bat",
+    tags: "[TELEMETRÍA] [MONITOREO]",
+    desc: `> ACTIVANDO RADAR DE COHERENCIA...
+
+Monitoreo continuo en tiempo real que detecta si sus agentes de IA se desvían de su tono de marca.
+
+Alertas automáticas de 'drift de identidad' para asegurar que la máquina siempre represente a su corporación impecablemente.`
+  }
+]
+
+const bootLines = [
+  "CARGANDO KERNEL MULTISECTORIAL... [OK]",
+  "INICIALIZANDO RED NEURAL CORE... [OK]",
+  "VERIFICANDO PROTOCOLOS DE SEGURIDAD (GDPR, HIPAA, SOC2)... [OK]",
+  "AISLANDO ENTORNO AIR-GAPPED... [OK]",
+  "DESENCRIPTANDO MEMORIA CORPORATIVA... [OK]",
+  "ESTABLECIENDO CONEXIÓN SEGURA... [COMPLETADO]"
+]
+
+// ============================================
+// HOOKS PERSONALIZADOS
+// ============================================
+
+function useTypewriter(text: string, speed: number = 40, startDelay: number = 0) {
+  const [displayText, setDisplayText] = useState('')
+  const [isComplete, setIsComplete] = useState(false)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  
+  const start = useCallback(() => {
+    setDisplayText('')
+    setIsComplete(false)
+    let i = 0
+    
+    timeoutRef.current = setTimeout(() => {
+      intervalRef.current = setInterval(() => {
+        if (i < text.length) {
+          setDisplayText(prev => prev + (text.charAt(i) === '\n' ? '\n' : text.charAt(i)))
+          i++
+        } else {
+          setIsComplete(true)
+          if (intervalRef.current) clearInterval(intervalRef.current)
+        }
+      }, speed)
+    }, startDelay)
+    
+  }, [text, speed, startDelay])
+  
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    }
+  }, [])
+  
+  return { displayText, isComplete, start }
+}
+
+// ============================================
+// COMPONENTES DE UI
+// ============================================
+
+function Tag({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-block border border-[var(--phosphor)] px-2 py-1 text-[11px] mr-2 mb-3 text-[var(--phosphor)] bg-[rgba(0,255,65,0.1)]">
+      {children}
+    </span>
+  )
+}
+
+function ASCIILogo() {
+  return (
+    <pre className="ascii-art text-glow mb-10 text-[10px] leading-tight overflow-x-auto">
+{`  _____  ____  _      _    _  _____ _____ ____  _   _ ______  _____    _____  ______   _____          
+ / ____|/ __ \\| |    | |  | |/ ____|_   _/ __ \\| \\ | |  ____|/ ____|  |  __ \\|  ____| |_   _|   /\\    
+| (___ | |  | | |    | |  | | |      | || |  | |  \\| | |__  | (___    | |  | | |__      | |    /  \\   
+ \\___ \\| |  | | |    | |  | | |      | || |  | | . \` |  __|  \\___ \\   | |  | |  __|     | |   / /\\ \\  
+ ____) | |__| | |____| |__| | |____ _| || |__| | |\\  | |____ ____) |  | |__| | |____   _| |_ / ____ \\ 
+|_____/ \\____/|______|\\____/ \\_____|_____\\____/|_| \\_|______|_____/   |_____/|______| |_____/_/    \\_\\`}
+    </pre>
+  )
+}
+
+// ============================================
+// SCREEN 1: EL DESPERTAR
+// ============================================
+
+function Screen1({ onEnter, isTransitioning }: { 
+  onEnter: () => void
+  isTransitioning: boolean 
+}) {
+  const introText = `> DESPIERTA...
+
+> "SOLUCIONES DE IA" TE ESTÁ BUSCANDO.`
+  
+  const { displayText, isComplete, start } = useTypewriter(introText, 100)
+  
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      start()
+    }, 1000)
+    return () => clearTimeout(timeout)
+  }, [start])
+  
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Enter' && isComplete && !isTransitioning) {
+        onEnter()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isComplete, onEnter, isTransitioning])
+  
+  return (
+    <div className="fixed inset-0 flex flex-col justify-center items-center text-center px-4 z-20">
+      <div className="text-xl sm:text-2xl whitespace-pre-wrap text-left max-w-[700px] font-bold mb-10">
+        {displayText}
+        {!isComplete && <span className="cursor-blink ml-1"></span>}
+      </div>
+      {isComplete && (
+        <div className="text-[var(--phosphor-dim)] text-sm animate-pulse">
+          [ OPRIME ENTER PARA EMPEZAR TU EXPERIENCIA ]
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ============================================
+// SCREEN 1.5: BOOT SEQUENCE
+// ============================================
+
+function ScreenBoot({ onComplete }: { onComplete: () => void }) {
+  const [lines, setLines] = useState<string[]>([])
+  const [isComplete, setIsComplete] = useState(false)
+  
+  useEffect(() => {
+    let i = 0
+    const interval = setInterval(() => {
+      if (i < bootLines.length) {
+        setLines(prev => [...prev, bootLines[i]])
+        i++
+      } else {
+        clearInterval(interval)
+        setIsComplete(true)
+        setTimeout(() => {
+          onComplete()
+        }, 1500)
+      }
+    }, 400)
+    
+    return () => clearInterval(interval)
+  }, [onComplete])
+  
+  return (
+    <div className="fixed inset-0 flex flex-col justify-center px-4 z-20 pt-12">
+      <div className="max-w-[900px] mx-auto w-full">
+        <div className="whitespace-pre-wrap text-[var(--phosphor-dim)]">
+          {lines.map((line, index) => (
+            <div key={index} className="mb-1">{line}</div>
+          ))}
+          {!isComplete && <span className="cursor-blink"></span>}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ============================================
+// SCREEN 2: EL DIÁLOGO
+// ============================================
+
+function Screen2({ 
+  onServiceSelect, 
+  onEscape,
+  isTransitioning 
+}: { 
+  onServiceSelect: (service: Service) => void 
+  onEscape: () => void
+  isTransitioning: boolean
+}) {
+  const dialogueText = `> CONEXIÓN ESTABLECIDA.
+> ANALIZANDO INFRAESTRUCTURA DEL CLIENTE...
+
+Somos SOLUCIONES DE IA. Arquitectos de sistemas neuronales.
+Tu empresa no necesita otro chatbot genérico descargado de la nube.
+Tu empresa necesita Branding de Algoritmos.
+
+> SERVICIOS DETECTADOS EN EL NODO:`
+  
+  const { displayText, isComplete, start } = useTypewriter(dialogueText, 60)
+  const [showServices, setShowServices] = useState(false)
+  const [visibleItems, setVisibleItems] = useState<number[]>([])
+  const [showInstruction, setShowInstruction] = useState(false)
+  const timersRef = useRef<NodeJS.Timeout[]>([])
+  
+  useEffect(() => {
+    start()
+  }, [start])
+  
+  useEffect(() => {
+    if (isComplete) {
+      setShowServices(true)
+      servicesData.forEach((_, index) => {
+        const timer = setTimeout(() => {
+          setVisibleItems(prev => [...prev, index])
+        }, 800 * (index + 1))
+        timersRef.current.push(timer)
+      })
+      
+      const intTimer = setTimeout(() => {
+        setShowInstruction(true)
+      }, 800 * servicesData.length + 1500)
+      timersRef.current.push(intTimer)
+    }
+
+    return () => {
+      timersRef.current.forEach(clearTimeout)
+      timersRef.current = []
+    }
+  }, [isComplete])
+  
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Escape' && showInstruction && !isTransitioning) {
+        onEscape()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [showInstruction, onEscape, isTransitioning])
+  
+  return (
+    <div className="fixed inset-0 flex flex-col justify-center items-center px-4 z-20 overflow-y-auto">
+      <div className="max-w-[900px] w-full pt-12 pb-8">
+        <div className="whitespace-pre-wrap mb-8 text-base">
+          {displayText}
+          {!isComplete && <span className="cursor-blink ml-1"></span>}
+        </div>
+        
+        {showServices && (
+          <ul className="space-y-5 mb-10 border-l-2 border-[var(--phosphor-dim)] pl-5">
+            {servicesData.map((service, index) => (
+              <li 
+                key={service.id}
+                className={`transition-all duration-[600ms] ${
+                  visibleItems.includes(index) 
+                    ? 'opacity-100 translate-x-0' 
+                    : 'opacity-0 translate-x-8'
+                }`}
+                style={{ transitionTimingFunction: 'cubic-bezier(0.1, 0.8, 0.2, 1)' }}
+              >
+                <button
+                  className="service-btn text-base"
+                  onClick={() => onServiceSelect(service)}
+                >
+                  {service.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        
+        {showInstruction && (
+          <div className="text-[var(--phosphor)] text-sm animate-pulse">
+            [ SELECCIONA TU SERVICIO O PRESIONA 'ESC' SI NECESITAS AYUDA ]
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ============================================
+// SCREEN 3: DASHBOARD PRINCIPAL
+// ============================================
+
+function Screen3({ preselectedService }: { preselectedService: Service | null }) {
+  const [activeService, setActiveService] = useState<Service | null>(null)
+  const [visibleItems, setVisibleItems] = useState<number[]>([])
+  const outputRef = useRef<HTMLDivElement>(null)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const timersRef = useRef<NodeJS.Timeout[]>([])
+  
+  const [outputText, setOutputText] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+  
+  const defaultOutput = `> ESPERANDO INPUT DEL USUARIO...
+> SELECCIONE UN MÓDULO DESDE EL PANEL DERECHO PARA DESPLEGAR LA ARQUITECTURA.`
+  
+  useEffect(() => {
+    servicesData.forEach((_, index) => {
+      const timer = setTimeout(() => {
+        setVisibleItems(prev => [...prev, index])
+      }, 300 * (index + 1))
+      timersRef.current.push(timer)
+    })
+
+    return () => {
+      timersRef.current.forEach(clearTimeout)
+      timersRef.current = []
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  }, [])
+  
+  useEffect(() => {
+    if (preselectedService) {
+      const initTimer = setTimeout(() => {
+        playService(preselectedService)
+      }, 800)
+      return () => clearTimeout(initTimer)
+    }
+  }, [preselectedService])
+  
+  const playService = (service: Service) => {
+    setActiveService(service)
+    
+    if (intervalRef.current) clearInterval(intervalRef.current)
+    
+    setOutputText('')
+    setIsTyping(true)
+    
+    const text = service.desc
+    let i = 0
+    
+    intervalRef.current = setInterval(() => {
+      if (i < text.length) {
+        setOutputText(prev => prev + (text.charAt(i) === '\n' ? '\n' : text.charAt(i)))
+        i++
+      } else {
+        setIsTyping(false)
+        if (intervalRef.current) clearInterval(intervalRef.current)
+      }
+    }, 30)
+  }
+  
+  return (
+    <div className="min-h-screen relative z-10 py-6 px-4 md:px-8">
+      <div className="max-w-5xl mx-auto">
+        <div className="border-b border-dashed border-[var(--phosphor-dim)] pb-4 mb-8 flex flex-col sm:flex-row justify-between text-xs gap-4">
+          <div>
+            <span className="text-[var(--phosphor-dim)]">SYS_ADMIN: </span>
+            <span>SOLUCIONES DE IA</span>
+            <br />
+            <span className="text-[var(--phosphor-dim)]">ESTADO: </span>
+            <span className="text-[var(--alert)] animate-pulse">CONECTADO AL NÚCLEO</span>
+          </div>
+          <div className="text-left sm:text-right">
+            <span className="text-[var(--phosphor-dim)]">TCP/IP SECURE COMM:</span>
+            <br />
+            <span className="text-[var(--phosphor-dim)]">MAIL: </span>
+            <a href="mailto:ssolucionesdeia@gmail.com" className="terminal-link">
+              ssolucionesdeia@gmail.com
+            </a>
+            <span className="text-[var(--phosphor-dim)]"> | TEL: </span>
+            <a href="tel:3108688648" className="terminal-link">
+              310-8688648
+            </a>
+          </div>
+        </div>
+        
+        <ASCIILogo />
+        
+        <div className="mb-10 border-l-4 border-[var(--phosphor)] pl-5">
+          <p className="font-bold text-lg mb-2">SU EMPRESA TIENE UNA VOZ. LA IA GENÉRICA LA BORRA.</p>
+          <p className="text-[var(--phosphor-dim)] text-[13px] leading-relaxed">
+            Arquitectura de Inteligencia Artificial Multisectorial. No configuramos chatbots estandarizados 
+            ni plantillas. Diseñamos la personalidad computacional de su organización mediante el Branding 
+            de Algoritmos, asegurando que su IA opere con la memoria institucional y filosofía de su empresa.
+          </p>
+        </div>
+        
+        <div className="grid md:grid-cols-2 gap-6 mb-10">
+          <div className="terminal-box min-h-[300px]">
+            <div className="box-title">/DEV/STDOUT - EJECUCIÓN DE PROTOCOLO</div>
+            <div ref={outputRef} className="mt-4 whitespace-pre-wrap text-[15px]">
+              {activeService && (
+                <div className="mb-3">
+                  {activeService.tags.split(' ').map((tag, i) => (
+                    <Tag key={i}>{tag}</Tag>
+                  ))}
+                </div>
+              )}
+              {activeService ? outputText : defaultOutput}
+              {isTyping && activeService && <span className="cursor-blink ml-1"></span>}
+            </div>
+          </div>
+          
+          <div className="terminal-box">
+            <div className="box-title">/BIN/SERVICES.SH</div>
+            <p className="text-[var(--phosphor-dim)] text-[11px] mb-5 mt-2">
+              MÓDULOS DE ARQUITECTURA IA:
+            </p>
+            <ul className="space-y-5">
+              {servicesData.map((service, index) => (
+                <li 
+                  key={service.id}
+                  className={`transition-all duration-[600ms] ${
+                    visibleItems.includes(index) 
+                      ? 'opacity-100 translate-x-0' 
+                      : 'opacity-0 translate-x-8'
+                  }`}
+                  style={{ transitionTimingFunction: 'cubic-bezier(0.1, 0.8, 0.2, 1)' }}
+                >
+                  <button
+                    className={`service-btn text-[14px] ${
+                      activeService?.id === service.id ? 'active' : ''
+                    }`}
+                    onClick={() => playService(service)}
+                  >
+                    {service.name}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        
+        <ArcadeGame />
+      </div>
+    </div>
+  )
+}
+
+// ============================================
+// ARCADE GAME
+// ============================================
+
+function ArcadeGame() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const gameRef = useRef<{
+    player: { x: number; y: number; w: number; h: number; speed: number; dx: number }
+    bullets: Array<{ x: number; y: number; w: number; h: number; speed: number }>
+    enemies: Array<{ x: number; y: number; w: number; h: number; speed: number; dir: number }>
+    score: number
+    gameActive: boolean
+    playerSpeed: number
+  } | null>(null)
+  
+  const animationFrameId = useRef<number | null>(null)
+  
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    
+    gameRef.current = {
+      player: { x: 280, y: 220, w: 20, h: 20, speed: 5, dx: 0 },
+      bullets: [],
+      enemies: [],
+      score: 0,
+      gameActive: true,
+      playerSpeed: 5
+    }
+    
+    const game = gameRef.current
+    
+    const createEnemies = () => {
+      game.enemies = []
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 8; col++) {
+          game.enemies.push({
+            x: 50 + col * 50,
+            y: 30 + row * 40,
+            w: 20,
+            h: 15,
+            speed: 1,
+            dir: 1
+          })
+        }
+      }
+    }
+    createEnemies()
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!game.gameActive) return
+      
+      if (e.code === 'ArrowLeft') game.player.dx = -game.player.speed
+      if (e.code === 'ArrowRight') game.player.dx = game.player.speed
+      if (e.code === 'Space') {
+        game.bullets.push({
+          x: game.player.x + game.player.w / 2 - 2,
+          y: game.player.y,
+          w: 4,
+          h: 10,
+          speed: 7
+        })
+      }
+    }
+    
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'ArrowLeft' || e.code === 'ArrowRight') {
+        game.player.dx = 0
+      }
+    }
+    
+    const preventScroll = (e: KeyboardEvent) => {
+      if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+        e.preventDefault()
+      }
+    }
+    
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('keyup', handleKeyUp)
+    window.addEventListener('keydown', preventScroll, { passive: false })
+    
+    const update = () => {
+      if (!game.gameActive) return
+      
+      game.player.x += game.player.dx
+      if (game.player.x < 0) game.player.x = 0
+      if (game.player.x + game.player.w > canvas.width) {
+        game.player.x = canvas.width - game.player.w
+      }
+      
+      game.bullets = game.bullets.filter(b => {
+        b.y -= b.speed
+        return b.y > 0
+      })
+      
+      let hitWall = false
+      game.enemies.forEach(e => {
+        e.x += e.speed * e.dir
+        if (e.x <= 0 || e.x + e.w >= canvas.width) hitWall = true
+      })
+      
+      if (hitWall) {
+        game.enemies.forEach(e => {
+          e.dir *= -1
+          e.y += 10
+          if (e.y + e.h >= game.player.y) {
+            game.gameActive = false
+          }
+        })
+      }
+      
+      game.bullets.forEach((b, bIndex) => {
+        game.enemies.forEach((e, eIndex) => {
+          if (
+            b.x < e.x + e.w &&
+            b.x + b.w > e.x &&
+            b.y < e.y + e.h &&
+            b.y + b.h > e.y
+          ) {
+            game.enemies.splice(eIndex, 1)
+            game.bullets.splice(bIndex, 1)
+            game.score += 10
+          }
+        })
+      })
+      
+      if (game.enemies.length === 0) {
+        createEnemies()
+        game.playerSpeed += 1
+        game.player.speed = game.playerSpeed
+      }
+    }
+    
+    const draw = () => {
+      ctx.fillStyle = '#000'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      
+      if (!game.gameActive) {
+        ctx.fillStyle = '#ff003c'
+        ctx.font = 'bold 16px Courier New'
+        ctx.textAlign = 'center'
+        ctx.fillText('FATAL ERROR: IA GENÉRICA DETECTADA', canvas.width / 2, 90)
+        
+        ctx.fillStyle = '#00ff41'
+        ctx.font = '14px Courier New'
+        ctx.fillText('"SOLUCIONES DE IA" EVITARÁ', canvas.width / 2, 130)
+        ctx.fillText('QUE ESTÉS EN GAME OVER.', canvas.width / 2, 155)
+        
+        ctx.fillStyle = '#00C832'
+        ctx.font = '12px Courier New'
+        ctx.fillText('IDENTIDAD PROTEGIDA: ' + game.score, canvas.width / 2, 200)
+        return
+      }
+      
+      ctx.fillStyle = '#00ff41'
+      ctx.beginPath()
+      ctx.moveTo(game.player.x + game.player.w / 2, game.player.y)
+      ctx.lineTo(game.player.x + game.player.w, game.player.y + game.player.h)
+      ctx.lineTo(game.player.x, game.player.y + game.player.h)
+      ctx.fill()
+      
+      ctx.fillStyle = '#fff'
+      game.bullets.forEach(b => {
+        ctx.fillRect(b.x, b.y, b.w, b.h)
+      })
+      
+      ctx.fillStyle = '#ff003c'
+      game.enemies.forEach(e => {
+        ctx.fillRect(e.x, e.y, e.w, e.h)
+      })
+      
+      ctx.fillStyle = '#00C832'
+      ctx.font = '12px Courier New'
+      ctx.textAlign = 'left'
+      ctx.fillText('SCORE: ' + game.score, 10, 20)
+    }
+    
+    const gameLoop = () => {
+      update()
+      draw()
+      animationFrameId.current = requestAnimationFrame(gameLoop)
+    }
+    
+    gameLoop()
+    
+    return () => {
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current)
+      }
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('keyup', handleKeyUp)
+      window.removeEventListener('keydown', preventScroll)
+    }
+  }, [])
+  
+  return (
+    <div className="terminal-box text-center mt-12 overflow-hidden">
+      <div className="box-title">/GAMES/DEFENDER_DATOS.EXE</div>
+      <canvas 
+        ref={canvasRef} 
+        width={600} 
+        height={250}
+        className="border-2 border-[var(--phosphor-dim)] bg-black mx-auto mt-4 max-w-full touch-none"
+        style={{ boxShadow: '0 0 15px rgba(0,255,65,0.15)' }}
+      />
+      <p className="text-xs text-[var(--phosphor-dim)] mt-4 px-2">
+        [FLECHAS] MOVER NAVE | [ESPACIO] DISPARAR LÁSER | DEFIENDA SU IDENTIDAD DE LA IA GENÉRICA
+      </p>
+    </div>
+  )
+}
+
+// ============================================
+// MAIN PAGE
+// ============================================
+
+export default function Home() {
+  const [currentScreen, setCurrentScreen] = useState(1)
+  const [preselectedService, setPreselectedService] = useState<Service | null>(null)
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  
+  const handleEnter = () => {
+    setIsTransitioning(true)
+    setCurrentScreen(1.5)
+  }
+  
+  const handleBootComplete = () => {
+    setCurrentScreen(2)
+    setIsTransitioning(false)
+  }
+  
+  const handleServiceSelect = (service: Service) => {
+    setIsTransitioning(true)
+    setPreselectedService(service)
+    setCurrentScreen(3)
+    setTimeout(() => setIsTransitioning(false), 500)
+  }
+  
+  const handleEscape = () => {
+    setIsTransitioning(true)
+    setPreselectedService(null)
+    setCurrentScreen(3)
+    setTimeout(() => setIsTransitioning(false), 500)
+  }
+  
+  return (
+    <main className="min-h-screen bg-black text-[var(--phosphor)] relative font-mono">
+      <div className="fixed inset-0 pointer-events-none z-[100]" 
+        style={{
+          background: 'linear-gradient(rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.20) 50%)',
+          backgroundSize: '100% 4px'
+        }}
+      />
+      
+      <div className="fixed inset-0 pointer-events-none z-[99]"
+        style={{
+          background: 'radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%)'
+        }}
+      />
+      
+      {currentScreen === 1 && (
+        <Screen1 onEnter={handleEnter} isTransitioning={isTransitioning} />
+      )}
+      
+      {currentScreen === 1.5 && (
+        <ScreenBoot onComplete={handleBootComplete} />
+      )}
+      
+      {currentScreen === 2 && (
+        <Screen2 
+          onServiceSelect={handleServiceSelect}
+          onEscape={handleEscape}
+          isTransitioning={isTransitioning}
+        />
+      )}
+      
+      {currentScreen === 3 && (
+        <Screen3 preselectedService={preselectedService} />
+      )}
+    </main>
+  )
+}
