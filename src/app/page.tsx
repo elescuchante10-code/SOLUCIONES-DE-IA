@@ -151,7 +151,8 @@ function Screen1({ onEnter, isTransitioning }: {
 
 > "SOLUCIONES DE IA" TE ESTÁ BUSCANDO.`
   
-  const { displayText, isComplete, start } = useTypewriter(introText, 100)
+  // Aumentamos el delay a 150 para que el texto sea un poco más lento
+  const { displayText, isComplete, start } = useTypewriter(introText, 150)
   
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -175,7 +176,7 @@ function Screen1({ onEnter, isTransitioning }: {
       className="fixed inset-0 flex flex-col justify-center items-center text-center px-4 z-20 cursor-pointer"
       onClick={() => { if (isComplete && !isTransitioning) onEnter() }}
     >
-      <div className="text-xl sm:text-2xl whitespace-pre-wrap text-left max-w-[700px] font-bold mb-10 pointer-events-none">
+      <div className="text-xl sm:text-2xl whitespace-pre-wrap text-left max-w-[700px] font-bold mb-10 pointer-events-none leading-relaxed">
         {displayText}
         {!isComplete && <span className="cursor-blink ml-1"></span>}
       </div>
@@ -209,7 +210,7 @@ function ScreenBoot({ onComplete }: { onComplete: () => void }) {
           onComplete()
         }, 1500)
       }
-    }, 400)
+    }, 600) // Cambiado de 400 a 600
     
     return () => clearInterval(interval)
   }, [onComplete])
@@ -217,9 +218,9 @@ function ScreenBoot({ onComplete }: { onComplete: () => void }) {
   return (
     <div className="fixed inset-0 flex flex-col justify-center px-4 z-20 pt-12">
       <div className="max-w-[900px] mx-auto w-full">
-        <div className="whitespace-pre-wrap text-[var(--phosphor-dim)]">
+        <div className="whitespace-pre-wrap text-[var(--phosphor-dim)] leading-loose">
           {lines.map((line, index) => (
-            <div key={index} className="mb-1">{line}</div>
+            <div key={index} className="mb-2">{line}</div>
           ))}
           {!isComplete && <span className="cursor-blink"></span>}
         </div>
@@ -250,7 +251,8 @@ Tu empresa necesita Branding de Algoritmos.
 
 > SERVICIOS DETECTADOS EN EL NODO:`
   
-  const { displayText, isComplete, start } = useTypewriter(dialogueText, 60)
+  // Aumentado el ms por letra de 60 a 85
+  const { displayText, isComplete, start } = useTypewriter(dialogueText, 85)
   const [showServices, setShowServices] = useState(false)
   const [visibleItems, setVisibleItems] = useState<number[]>([])
   const [showInstruction, setShowInstruction] = useState(false)
@@ -266,13 +268,13 @@ Tu empresa necesita Branding de Algoritmos.
       servicesData.forEach((_, index) => {
         const timer = setTimeout(() => {
           setVisibleItems(prev => [...prev, index])
-        }, 800 * (index + 1))
+        }, 1100 * (index + 1)) // Más espacio de tiempo de aparición
         timersRef.current.push(timer)
       })
       
       const intTimer = setTimeout(() => {
         setShowInstruction(true)
-      }, 800 * servicesData.length + 1500)
+      }, 1100 * servicesData.length + 1500)
       timersRef.current.push(intTimer)
     }
 
@@ -295,13 +297,13 @@ Tu empresa necesita Branding de Algoritmos.
   return (
     <div className="fixed inset-0 flex flex-col justify-center items-center px-4 z-20 overflow-y-auto">
       <div className="max-w-[900px] w-full pt-12 pb-8">
-        <div className="whitespace-pre-wrap mb-8 text-base">
+        <div className="whitespace-pre-wrap mb-8 text-base leading-relaxed">
           {displayText}
           {!isComplete && <span className="cursor-blink ml-1"></span>}
         </div>
         
         {showServices && (
-          <ul className="space-y-5 mb-10 border-l-2 border-[var(--phosphor-dim)] pl-5">
+          <ul className="space-y-6 mb-10 border-l-2 border-[var(--phosphor-dim)] pl-5">
             {servicesData.map((service, index) => (
               <li 
                 key={service.id}
@@ -313,7 +315,7 @@ Tu empresa necesita Branding de Algoritmos.
                 style={{ transitionTimingFunction: 'cubic-bezier(0.1, 0.8, 0.2, 1)' }}
               >
                 <button
-                  className="service-btn text-base"
+                  className="service-btn text-base py-1"
                   onClick={() => onServiceSelect(service)}
                 >
                   {service.name}
@@ -357,7 +359,7 @@ function Screen3({ preselectedService }: { preselectedService: Service | null })
     servicesData.forEach((_, index) => {
       const timer = setTimeout(() => {
         setVisibleItems(prev => [...prev, index])
-      }, 300 * (index + 1))
+      }, 400 * (index + 1))
       timersRef.current.push(timer)
     })
 
@@ -396,7 +398,7 @@ function Screen3({ preselectedService }: { preselectedService: Service | null })
         setIsTyping(false)
         if (intervalRef.current) clearInterval(intervalRef.current)
       }
-    }, 30)
+    }, 45) // Cambiado de 30 a 45
   }
   
   return (
@@ -419,8 +421,8 @@ function Screen3({ preselectedService }: { preselectedService: Service | null })
             </a>
             <span className="text-[var(--phosphor-dim)] mx-1">|</span>
             <span className="text-[var(--phosphor-dim)]">TEL: </span>
-            <a href="tel:3108688648" className="terminal-link">
-              310-8688648
+            <a href="https://wa.me/573108688648" target="_blank" rel="noopener noreferrer" className="terminal-link">
+              +57 3108688648
             </a>
             <br />
             <span className="text-[var(--phosphor-dim)]">REDES: </span>
@@ -452,7 +454,7 @@ function Screen3({ preselectedService }: { preselectedService: Service | null })
         <div className="grid md:grid-cols-2 gap-6 mb-10">
           <div className="terminal-box min-h-[300px]">
             <div className="box-title">/DEV/STDOUT - EJECUCIÓN DE PROTOCOLO</div>
-            <div ref={outputRef} className="mt-4 whitespace-pre-wrap text-[15px]">
+            <div ref={outputRef} className="mt-4 whitespace-pre-wrap text-[15px] leading-relaxed">
               {activeService && (
                 <div className="mb-3">
                   {activeService.tags.split(' ').map((tag, i) => (
@@ -470,7 +472,7 @@ function Screen3({ preselectedService }: { preselectedService: Service | null })
             <p className="text-[var(--phosphor-dim)] text-[11px] mb-5 mt-2">
               MÓDULOS DE ARQUITECTURA IA:
             </p>
-            <ul className="space-y-5">
+            <ul className="space-y-6">
               {servicesData.map((service, index) => (
                 <li 
                   key={service.id}
@@ -507,7 +509,7 @@ function Screen3({ preselectedService }: { preselectedService: Service | null })
 
 function ArcadeGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [isGameOver, setIsGameOver] = useState(false)
+  const [gameResult, setGameResult] = useState<'won' | 'lost' | null>(null)
   
   const gameRef = useRef<{
     player: { x: number; y: number; w: number; h: number; speed: number; dx: number }
@@ -521,7 +523,7 @@ function ArcadeGame() {
   const animationFrameId = useRef<number | null>(null)
   
   useEffect(() => {
-    if (isGameOver) return // Stop game loop logic entirely if game is over
+    if (gameResult !== null) return // Stop game loop logic entirely if game is over
 
     const canvas = canvasRef.current
     if (!canvas) return
@@ -613,9 +615,10 @@ function ArcadeGame() {
         game.enemies.forEach(e => {
           e.dir *= -1
           e.y += 10
+          // Loss state: an alien reached the bottom
           if (e.y + e.h >= game.player.y) {
             game.gameActive = false
-            setIsGameOver(true)
+            setGameResult('lost')
           }
         })
       }
@@ -635,10 +638,10 @@ function ArcadeGame() {
         })
       })
       
-      if (game.enemies.length === 0) {
-        createEnemies()
-        game.playerSpeed += 1
-        game.player.speed = game.playerSpeed
+      // ALIEN ELIMINATION (Win State)
+      if (game.enemies.length === 0 && game.gameActive) {
+        game.gameActive = false
+        setGameResult('won')
       }
     }
     
@@ -691,7 +694,7 @@ function ArcadeGame() {
       document.removeEventListener('keyup', handleKeyUp)
       window.removeEventListener('keydown', preventScroll)
     }
-  }, [isGameOver])
+  }, [gameResult])
 
   const handlePointerDownLeft = () => { if (gameRef.current) gameRef.current.player.dx = -gameRef.current.player.speed }
   const handlePointerDownRight = () => { if (gameRef.current) gameRef.current.player.dx = gameRef.current.player.speed }
@@ -710,7 +713,7 @@ function ArcadeGame() {
     <div className="terminal-box text-center mt-12 overflow-hidden flex flex-col items-center">
       <div className="box-title w-full text-left">/GAMES/DEFENDER_DATOS.EXE</div>
       
-      {!isGameOver ? (
+      {gameResult === null ? (
         <>
           <canvas 
             ref={canvasRef} 
@@ -723,7 +726,6 @@ function ArcadeGame() {
             [FLECHAS] MOVER NAVE | [ESPACIO] DISPARAR LÁSER
           </p>
 
-          {/* FRONT-END CONTROLES DE MÓVIL */}
           <div className="flex justify-between w-full max-w-[600px] mt-4 md:hidden gap-2">
             <button 
               className="flex-1 bg-[rgba(0,255,65,0.1)] border border-[var(--phosphor-dim)] text-[var(--phosphor)] py-3 active:bg-[var(--phosphor)] active:text-black font-bold transition-colors select-none"
@@ -753,15 +755,26 @@ function ArcadeGame() {
           </div>
         </>
       ) : (
-        <div className="mt-6 p-6 border border-[var(--alert)] bg-[rgba(255,0,60,0.05)] text-left w-full max-w-[600px] shadow-[0_0_15px_rgba(255,0,60,0.2)]">
-          <h3 className="text-[var(--alert)] font-bold mb-4 text-center sm:text-left text-lg">
-            &gt; SISTEMA BLOQUEADO // MÁXIMO DE INTENTOS ALCANZADO
+        <div className={`mt-6 p-6 border text-left w-full max-w-[600px] shadow-[0_0_15px_rgba(0,255,65,0.15)] ${
+          gameResult === 'won' ? 'border-[var(--phosphor)] bg-[rgba(0,255,65,0.05)]' : 'border-[var(--alert)] bg-[rgba(255,0,60,0.05)] shadow-[0_0_15px_rgba(255,0,60,0.2)]'
+        }`}>
+          <h3 className={`font-bold mb-4 text-center sm:text-left text-lg ${
+            gameResult === 'won' ? 'text-[var(--phosphor)]' : 'text-[var(--alert)]'
+          }`}>
+            {gameResult === 'won' 
+              ? '> DEFENSA EXITOSA // IDENTIDAD CORPORATIVA PROTEGIDA' 
+              : '> SISTEMA BLOQUEADO // MÁXIMO DE INTENTOS ALCANZADO'}
           </h3>
-          <p className="text-sm mb-6 text-center sm:text-left text-[var(--phosphor)]">
-            Ha intentado defender sus datos corporativos manualmente sin IA especializada. GAME OVER.
+          
+          <p className="text-sm mb-6 text-center sm:text-left text-[var(--phosphor)] leading-relaxed">
+            {gameResult === 'won' 
+              ? 'Ha comprobado el valor de proteger el núcleo de su empresa. Sin embargo, en el mundo real, mantener la coherencia exige algoritmos diseñados a medida, no naves.'
+              : 'Ha intentado defender sus datos corporativos manualmente sin IA especializada. GAME OVER.'
+            }
             <br /><br />
-            ¿Desea desbloquear un nuevo crédito o construir la personalidad nativa de su IA interactiva? Contacte a nuestros ingenieros para recuperar el sistema.
+            No deje sus procesos a merced de modelos estándar y automatice su empresa con una verdadera Arquitectura de IA. Solicite una demostración o construya ya el Branding de su Algoritmo:
           </p>
+          
           <div className="flex flex-col sm:flex-row gap-4">
             <a 
               href="mailto:ssolucionesdeia@gmail.com" 
@@ -770,10 +783,12 @@ function ArcadeGame() {
               {`> INICIAR_CONSULTA.sh`}
             </a>
             <a 
-              href="tel:3108688648" 
+              href="https://wa.me/573108688648" 
+              target="_blank" 
+              rel="noopener noreferrer"
               className="terminal-link border border-[var(--phosphor)] px-4 py-3 flex-1 text-center hover:bg-[var(--phosphor)] hover:text-black no-underline transition-colors block"
             >
-              {`> ENLACE_VOZ.exe`}
+              {`> ENLACE_WHATSAPP.exe`}
             </a>
           </div>
         </div>
