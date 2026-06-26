@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 
+let globalMouseX = 0.5
+
 // ============================================
 // TIPOS Y DATOS (MULTISECTORIAL)
 // ============================================
@@ -226,6 +228,22 @@ function useTypewriter(text: string, speed: number = 40, startDelay: number = 0)
 // COMPONENTES DE UI
 // ============================================
 
+function AnimatedCounter({ target }: { target: number }) {
+  const [val, setVal] = useState(0)
+  useEffect(() => {
+    let frame = 0
+    const total = 60
+    const tick = () => {
+      frame++
+      setVal(Math.round(target * Math.min(frame / total, 1)))
+      if (frame < total) requestAnimationFrame(tick)
+    }
+    const t = setTimeout(() => requestAnimationFrame(tick), 400)
+    return () => clearTimeout(t)
+  }, [target])
+  return <>{val}</>
+}
+
 function Tag({ children }: { children: React.ReactNode }) {
   return (
     <span className="inline-block border border-[var(--phosphor)] px-2 py-0.5 text-[10px] mr-1.5 mb-1.5 text-[var(--phosphor)] bg-[rgba(255,255,255,0.03)] font-bold tracking-wide">
@@ -340,7 +358,9 @@ function Oscilloscope({ type, theme }: {
             y = midY + (Math.random() - 0.5) * 6 + Math.sin((x + offset) * 0.02) * 3
             break
         }
-        
+
+        y = midY + (y - midY) * (0.55 + globalMouseX * 0.9)
+
         if (x === 0) {
           ctx.moveTo(x, y)
         } else {
@@ -1165,6 +1185,7 @@ function Screen3({
   const [outputText, setOutputText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [terminalLogs, setTerminalLogs] = useState<string[]>([])
+  const [isGlitching, setIsGlitching] = useState(false)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const playService = (service: Service) => {
@@ -1183,6 +1204,13 @@ function Screen3({
         if (intervalRef.current) clearInterval(intervalRef.current)
       }
     }, 20)
+  }
+
+  const handleTabClick = (service: Service) => {
+    if (service.id === activeService.id) return
+    setIsGlitching(true)
+    setTimeout(() => setIsGlitching(false), 280)
+    playService(service)
   }
 
   useEffect(() => {
@@ -1257,12 +1285,12 @@ function Screen3({
           </div>
           <div className="flex flex-row lg:flex-col divide-x lg:divide-x-0 lg:divide-y divide-[var(--phosphor-dim)]">
             {([
-              { num: '6', label: 'SERVICIOS',   sub: 'Gobernanza → Custom Build' },
-              { num: '3', label: 'MARCOS REG.',  sub: 'ISO · EU AI Act · NIST'   },
-              { num: '0', label: 'BYTES FUERA',  sub: 'Infraestructura privada'  },
+              { num: 6, label: 'SERVICIOS',   sub: 'Gobernanza → Custom Build' },
+              { num: 3, label: 'MARCOS REG.',  sub: 'ISO · EU AI Act · NIST'   },
+              { num: 0, label: 'BYTES FUERA',  sub: 'Infraestructura privada'  },
             ] as const).map(s => (
               <div key={s.num} className="flex items-center gap-3 px-5 py-3 flex-1 lg:flex-initial">
-                <span className="text-3xl lg:text-4xl font-bold text-glow shrink-0">{s.num}</span>
+                <span className="text-3xl lg:text-4xl font-bold text-glow shrink-0"><AnimatedCounter target={s.num} /></span>
                 <div>
                   <div className="text-[9px] font-bold tracking-widest text-[var(--phosphor)] uppercase">{s.label}</div>
                   <div className="text-[8px] text-[var(--phosphor-dim)]">{s.sub}</div>
@@ -1298,7 +1326,7 @@ function Screen3({
                       ? 'bg-[rgba(255,215,0,0.07)] text-[var(--accent)] border-l-[3px] border-[var(--accent)]'
                       : 'text-[var(--phosphor-dim)] hover:text-[var(--phosphor)] hover:bg-[rgba(255,255,255,0.02)] border-l-[3px] border-transparent'
                   }`}
-                  onClick={() => playService(service)}
+                  onClick={() => handleTabClick(service)}
                 >
                   <span className={`text-[9px] font-bold mt-0.5 shrink-0 w-5 ${activeService.id === service.id ? 'text-[var(--accent)]' : 'text-[var(--phosphor-dim)]'}`}>
                     {String(index + 1).padStart(2, '0')}
@@ -1331,7 +1359,7 @@ function Screen3({
           </div>
 
           {/* CONTENIDO DEL DASHBOARD */}
-          <div className="flex-1 overflow-y-auto">
+          <div className={`flex-1 overflow-y-auto${isGlitching ? ' glitch-transition' : ''}`}>
             <ServiceDashboard
               key={activeService.id}
               service={activeService}
@@ -1658,12 +1686,31 @@ export default function Home() {
   const [preselectedService, setPreselectedService] = useState<Service | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [theme, setTheme] = useState<'amber' | 'synthwave' | 'matrix'>('amber')
-  
+  const cursorRef = useRef<HTMLDivElement>(null)
+  const cursorGlowRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     const root = document.documentElement
     root.classList.remove('theme-amber', 'theme-synthwave', 'theme-matrix')
     root.classList.add(`theme-${theme}`)
   }, [theme])
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      globalMouseX = e.clientX / window.innerWidth
+      document.documentElement.style.setProperty('--mouse-x', String((e.clientX / window.innerWidth - 0.5) * 2))
+      if (cursorRef.current) {
+        cursorRef.current.style.left = e.clientX + 'px'
+        cursorRef.current.style.top = e.clientY + 'px'
+      }
+      if (cursorGlowRef.current) {
+        cursorGlowRef.current.style.left = e.clientX + 'px'
+        cursorGlowRef.current.style.top = e.clientY + 'px'
+      }
+    }
+    window.addEventListener('mousemove', onMove)
+    return () => window.removeEventListener('mousemove', onMove)
+  }, [])
   
   const handleEnter = () => {
     setIsTransitioning(true)
@@ -1691,6 +1738,16 @@ export default function Home() {
   
   return (
     <main className="min-h-screen bg-black text-[var(--phosphor)] relative font-mono crt-container">
+      <svg style={{position:'absolute',width:0,height:0,overflow:'hidden'}} aria-hidden="true">
+        <defs>
+          <filter id="phosphor-bloom" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+      </svg>
+      <div ref={cursorGlowRef} className="cursor-glow" />
+      <div ref={cursorRef} className="custom-cursor"><div className="custom-cursor-cross" /></div>
       {/* Fondo de rejilla 3D animada retro — dos capas para profundidad */}
       <div className="grid-container">
         <div className="retro-grid" />
