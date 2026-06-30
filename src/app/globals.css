@@ -1,0 +1,354 @@
+@import "tailwindcss";
+
+:root {
+  --void: #07050a;
+  --void-2: #0d0810;
+  --navy: #25182E;
+  --surface: rgba(37, 24, 46, 0.35);
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --primary-glow: #CA1F3D;
+  --secondary-glow: #FFBE00;
+  --tertiary-glow: #9B6B8C;
+  --success: #00FF88;
+  --text-main: #FFFFFF;
+  --text-muted: #9A8FA0;
+  --text-dim: #5C4F63;
+  --mx: 50%;
+  --my: 50%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--void);
+  color: var(--text-main);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* ── Display typography: headings & numbers use Space Grotesk ── */
+h1, h2, h3 {
+  font-family: var(--font-space-grotesk), sans-serif;
+}
+
+/* ── Lenis smooth scroll ── */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* ── Custom magnetic cursor (difference blend) ── */
+@media (pointer: fine) {
+  body, a, button { cursor: none; }
+}
+
+.cursor-dot {
+  position: fixed;
+  top: 0; left: 0;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text-main);
+  mix-blend-mode: difference;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}
+
+.cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-main);
+  mix-blend-mode: difference;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), height 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s ease;
+  will-change: transform;
+}
+
+.cursor-ring.cursor-ring-hover {
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+::selection {
+  background: var(--primary-glow);
+  color: white;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary-glow); }
+
+/* ================================================
+   AMBIENT MESH GRADIENT BACKGROUND
+   ================================================ */
+
+.ambient-background {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: -1;
+  background: var(--void);
+  overflow: hidden;
+}
+
+.ambient-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.4;
+  mix-blend-mode: screen;
+  animation: float 20s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.blob-1 { background: var(--primary-glow); width: 50vw; height: 50vw; top: -10%; left: -10%; }
+.blob-2 { background: var(--secondary-glow); width: 40vw; height: 40vw; bottom: -20%; right: -10%; animation-delay: -5s; }
+.blob-3 { background: var(--tertiary-glow); width: 32vw; height: 32vw; top: 35%; left: 35%; opacity: 0.18; animation-delay: -11s; }
+
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(10vw, 15vh) scale(1.2); }
+}
+
+/* ================================================
+   NEURAL DATA-MESH TEXTURE (dark-on-dark, behind cards)
+   ================================================ */
+
+.mesh-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.55;
+}
+
+.mesh-lines line {
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 0.6;
+}
+
+.mesh-nodes circle {
+  fill: rgba(255, 190, 0, 0.16);
+}
+
+.mesh-nodes circle.mesh-node-accent {
+  fill: rgba(202, 31, 61, 0.28);
+}
+
+.code-rain {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0.4;
+}
+
+.code-col {
+  position: absolute;
+  top: -10%;
+  white-space: pre-line;
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 10px;
+  line-height: 1.6;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  animation: codeDrift 16s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes codeDrift {
+  0% { transform: translateY(-3%); }
+  100% { transform: translateY(3%); }
+}
+
+.mesh-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle 480px at var(--page-mx, 50%) var(--page-my, 50%), rgba(255, 255, 255, 0.07), transparent 70%);
+  mix-blend-mode: screen;
+}
+
+/* Cursor-following ambient spotlight (page-level) */
+.cursor-spotlight {
+  position: fixed;
+  top: 0; left: 0;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(202, 31, 61, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}
+
+/* ================================================
+   PREMIUM / BENTO CARDS
+   ================================================ */
+
+.premium-card {
+  background: var(--surface);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--surface-border);
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.premium-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 20px rgba(202, 31, 61, 0.15);
+}
+
+/* Luz interactiva de los bordes (Reveal Effect) */
+.premium-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent 40%, transparent 60%, rgba(255, 255, 255, 0.05));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Spotlight that tracks the cursor inside a card (set --mx/--my via JS) */
+.premium-card-spot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle 220px at var(--mx) var(--my), rgba(202, 31, 61, 0.18), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.premium-card-spot:hover::after { opacity: 1; }
+
+/* ── Typography ── */
+.title-gradient {
+  background: linear-gradient(135deg, #FFF 0%, #888 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-accent-gradient {
+  background: linear-gradient(135deg, var(--primary-glow), var(--secondary-glow));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-accent-gradient-warm {
+  background: linear-gradient(135deg, var(--secondary-glow), var(--tertiary-glow));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ================================================
+   MODERN CONSOLE (reemplazo del CRT)
+   ================================================ */
+
+.modern-console {
+  background: rgba(10, 10, 12, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.8), 0 30px 80px -20px rgba(0, 0, 0, 0.6);
+  font-family: var(--font-jetbrains), monospace;
+}
+
+.console-tab {
+  text-align: left;
+  font-size: 0.875rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  transition: all 0.25s ease;
+  font-family: var(--font-jetbrains), monospace;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+.console-tab:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
+.console-tab.active {
+  background: rgba(202, 31, 61, 0.16);
+  border-color: rgba(202, 31, 61, 0.45);
+  color: var(--text-main);
+  font-weight: 500;
+}
+.console-tab-index { color: var(--text-dim); font-size: 0.7rem; }
+.console-tab.active .console-tab-index { color: var(--secondary-glow); }
+
+.console-output-card {
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* ── Badges / pills ── */
+.glass-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--surface-border);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.tag-pill {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* ── Section label ── */
+.sec-label {
+  display: block;
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--secondary-glow);
+  margin-bottom: 0.75rem;
+}
+
+/* ── Separator ── */
+.glow-sep {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(202, 31, 61, 0.4), rgba(255, 190, 0, 0.4), transparent);
+}
